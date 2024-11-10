@@ -35,7 +35,11 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    pass
+    if data :
+        return jsonify(data), 200
+    
+    return {"message": "Internal server error"}, 500
+
 
 ######################################################################
 # GET A PICTURE
@@ -44,7 +48,13 @@ def get_pictures():
 
 @app.route("/picture/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
-    pass
+    try:
+        for picture in data:
+            if picture['id'] == id:
+                return jsonify(picture), 200
+        return jsonify({"message": "Picture not found"}), 404
+    except Exception as e:
+        return {"message": "Internal server error"}, 500
 
 
 ######################################################################
@@ -52,7 +62,15 @@ def get_picture_by_id(id):
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    try: 
+        new_picture = request.json
+        for picture in data:
+            if picture['id'] == new_picture['id']:
+                return jsonify({'Message': f"picture with id {new_picture['id']} already present"}), 302
+        data.append(new_picture)
+        return jsonify(new_picture), 201
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
 
 ######################################################################
 # UPDATE A PICTURE
@@ -61,11 +79,31 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    try:
+        updated_picture = request.json
+        for i, picture in enumerate(data):
+            if picture['id'] == id:
+                data[i] = updated_picture  # Update the picture
+                return jsonify(updated_picture), 200
+
+        return jsonify({"message": "picture not found"}), 404
+
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+
 
 ######################################################################
 # DELETE A PICTURE
 ######################################################################
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
+    try:
+        for i, picture in enumerate(data):
+            if picture['id'] == id:
+                del data[i]  # Delete the picture
+                return '', 204  # HTTP_204_NO_CONTENT
+
+        return jsonify({"message": "picture not found"}), 404
+
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
